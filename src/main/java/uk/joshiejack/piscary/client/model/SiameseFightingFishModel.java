@@ -1,41 +1,38 @@
 package uk.joshiejack.piscary.client.model;
 
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.*;
+import net.minecraft.resources.ResourceLocation;
+import uk.joshiejack.piscary.Piscary;
+import uk.joshiejack.piscary.client.model.AbstractFishModel;
+
+
 public class SiameseFightingFishModel extends AbstractFishModel {
-    public SiameseFightingFishModel() {
-        texWidth = 32;
-        texHeight = 16;
+	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(Piscary.MODID, "siamese_fighting_fish"), "main");
 
-        tail = new ModelRenderer(this);
-        tail.setPos(0.0F, 23.0F, 0.5F);
-        setRotationAngle(tail, 0.0F, 0.0436F, 0.0F);
-        tail.texOffs(0, 0).addBox(-1.0F, -1.0F, 0.0F, 2.0F, 2.0F, 4.0F, 0.0F, false);
-        tail.texOffs(0, 0).addBox(0.0F, -3.4F, -0.5F, 0.0F, 7.0F, 7.0F, 0.0F, false);
+	public SiameseFightingFishModel(ModelPart root) {
+		super(root);
+	}
 
-        body = new ModelRenderer(this);
-        body.setPos(0.0F, 24.0F, 0.0F);
-        body.texOffs(11, 11).addBox(-1.0F, -2.0F, -2.0F, 2.0F, 2.0F, 3.0F, 0.0F, false);
-        body.texOffs(8, 0).addBox(-1.0F, -1.6F, -3.0F, 2.0F, 1.0F, 1.0F, 0.0F, false);
+	public static LayerDefinition createBodyLayer() {
+		MeshDefinition meshdefinition = new MeshDefinition();
+		PartDefinition partdefinition = meshdefinition.getRoot();
 
-        ModelRenderer fins = new ModelRenderer(this);
-        fins.setPos(-1.0F, -1.0F, -0.75F);
-        body.addChild(fins);
+		PartDefinition tail = partdefinition.addOrReplaceChild("tail", CubeListBuilder.create().texOffs(0, 0).addBox(-1.0F, -1.0F, 0.0F, 2.0F, 2.0F, 4.0F, new CubeDeformation(0.0F))
+		.texOffs(0, 0).addBox(0.0F, -3.4F, -0.5F, 0.0F, 7.0F, 7.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 23.0F, 0.5F, 0.0F, 0.0436F, 0.0F));
 
+		PartDefinition body = partdefinition.addOrReplaceChild("body", CubeListBuilder.create().texOffs(11, 11).addBox(-1.0F, -2.0F, -2.0F, 2.0F, 2.0F, 3.0F, new CubeDeformation(0.0F))
+		.texOffs(8, 0).addBox(-1.0F, -1.6F, -3.0F, 2.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 24.0F, 0.0F));
 
-        ModelRenderer fin_right_r1 = new ModelRenderer(this);
-        fin_right_r1.setPos(0.0F, 0.0F, 1.0F);
-        fins.addChild(fin_right_r1);
-        setRotationAngle(fin_right_r1, -0.1745F, -0.6109F, 0.2618F);
-        fin_right_r1.texOffs(0, 1).addBox(0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 2.0F, 0.0F, false);
+		PartDefinition fins = body.addOrReplaceChild("fins", CubeListBuilder.create(), PartPose.offset(-1.0F, -1.0F, -0.75F));
 
-        ModelRenderer fin_left_r1 = new ModelRenderer(this);
-        fin_left_r1.setPos(2.0F, 0.0F, 1.0F);
-        fins.addChild(fin_left_r1);
-        setRotationAngle(fin_left_r1, -0.1745F, 0.6109F, -0.2618F);
-        fin_left_r1.texOffs(0, 0).addBox(0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 2.0F, 0.0F, false);
-    }
+		PartDefinition fin_right_r1 = fins.addOrReplaceChild("fin_right_r1", CubeListBuilder.create().texOffs(0, 1).addBox(0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 1.0F, -0.1745F, -0.6109F, 0.2618F));
+
+		PartDefinition fin_left_r1 = fins.addOrReplaceChild("fin_left_r1", CubeListBuilder.create().texOffs(0, 0).addBox(0.0F, -0.5F, 0.0F, 0.0F, 1.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(2.0F, 0.0F, 1.0F, -0.1745F, 0.6109F, -0.2618F));
+
+		return LayerDefinition.create(meshdefinition, 32, 16);
+	}
 }

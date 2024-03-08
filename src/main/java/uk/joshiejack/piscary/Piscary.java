@@ -1,37 +1,37 @@
 package uk.joshiejack.piscary;
 
-import net.minecraft.data.BlockTagsProvider;
+import net.minecraft.DetectedVersion;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.SpawnEggItem;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.registry.Registry;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
-import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.RegistryObject;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.data.PackOutput;
+import net.minecraft.data.metadata.PackMetadataGenerator;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.InclusiveRange;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import uk.joshiejack.piscary.block.PiscaryBlocks;
-import uk.joshiejack.piscary.crafting.PiscaryRegistries;
 import uk.joshiejack.piscary.data.*;
-import uk.joshiejack.piscary.entity.PiscaryEntities;
-import uk.joshiejack.piscary.item.PiscaryItems;
-import uk.joshiejack.piscary.loot.BiomeTypeLocationCheck;
-import uk.joshiejack.piscary.tileentity.PiscaryTileEntities;
+import uk.joshiejack.piscary.world.block.PiscaryBlocks;
+import uk.joshiejack.piscary.world.block.entity.PiscaryBlockEntities;
+import uk.joshiejack.piscary.world.entity.PiscaryEntities;
+import uk.joshiejack.piscary.world.item.PiscaryItems;
+import uk.joshiejack.piscary.world.item.crafting.PiscaryRegistries;
+import uk.joshiejack.piscary.world.loot.PiscaryLoot;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -39,67 +39,71 @@ import javax.annotation.Nonnull;
 public class Piscary {
     public static final String MODID = "piscary";
     public static final Logger LOGGER = LogManager.getLogger();
-    public static final ItemGroup TAB = new ItemGroup(MODID) {
-        @Nonnull
-        @OnlyIn(Dist.CLIENT)
-        public ItemStack makeIcon() {
-            return new ItemStack(PiscaryItems.PUPFISH.get());
-        }
 
-        @OnlyIn(Dist.CLIENT)
-        public void fillItemList(@Nonnull NonNullList<ItemStack> list) {
-            NonNullList<ItemStack> spawnEggs = NonNullList.create();
-            Registry.ITEM.forEach(item -> {
-                if (item instanceof SpawnEggItem) item.fillItemCategory(this, spawnEggs);
-                else item.fillItemCategory(this, list);
-            });
+    public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Piscary.MODID);
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = CREATIVE_MODE_TABS.register(Piscary.MODID, () -> CreativeModeTab.builder()
+            .title(Component.translatable("itemGroup." + Piscary.MODID))
+            .icon(() -> new ItemStack(PiscaryItems.PUPFISH.asItem()))
+            .displayItems((params, output) -> {
+                PiscaryItems.ITEMS.getEntries().stream()
+                        .map(DeferredHolder::get)
+                        .forEach(output::accept);
+                PiscaryEntities.ITEMS.getEntries().stream()
+                        .map(DeferredHolder::get)
+                        .forEach(output::accept);
+            }).build());
 
-            list.addAll(spawnEggs);
-        }
-    };
-
-    public Piscary() {
-        IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
+    public Piscary(IEventBus eventBus) {
         PiscarySounds.SOUNDS.register(eventBus);
         PiscaryBlocks.BLOCKS.register(eventBus);
         PiscaryItems.ITEMS.register(eventBus);
         PiscaryEntities.ENTITIES.register(eventBus);
         PiscaryEntities.ITEMS.register(eventBus);
         PiscaryEntities.PAINTINGS.register(eventBus);
+        PiscaryLoot.LOOT_CONDITION_TYPES.register(eventBus);
+        PiscaryRegistries.RECIPE_TYPES.register(eventBus);
         PiscaryRegistries.SERIALIZERS.register(eventBus);
-        PiscaryTileEntities.TILE_ENTITIES.register(eventBus);
+        PiscaryBlockEntities.BLOCK_ENTITY_TYPE.register(eventBus);
+        CREATIVE_MODE_TABS.register(eventBus);
     }
 
     @SubscribeEvent
     public static void onDataGathering(final GatherDataEvent event) {
         final DataGenerator generator = event.getGenerator();
-        if (event.includeServer()) {
-            generator.addProvider(new PiscaryLootTables(generator));
-            BlockTagsProvider blockTags = new PiscaryBlockTags(generator, event.getExistingFileHelper());
-            generator.addProvider(blockTags);
-            generator.addProvider(new PiscaryItemTags(generator, blockTags, event.getExistingFileHelper()));
-            generator.addProvider(new PiscaryRecipes(generator));
-            generator.addProvider(new PiscaryDatabase(generator));
-            generator.addProvider(new PiscaryBlockStates(generator, event.getExistingFileHelper()));
-        }
+        final PackOutput output = event.getGenerator().getPackOutput();
+        //Add the datapack entries
+        //Client
+        generator.addProvider(event.includeClient(), new PiscaryBlockStates(output, event.getExistingFileHelper()));
+        generator.addProvider(event.includeClient(), new PiscaryItemModels(output, event.getExistingFileHelper()));
+        generator.addProvider(event.includeClient(), new PiscaryLanguage(output));
+        generator.addProvider(event.includeClient(), new PiscarySoundDefinitions(output, event.getExistingFileHelper()));
 
-        if (event.includeClient()) {
-            generator.addProvider(new PiscaryLanguage(generator));
-            generator.addProvider(new PiscaryItemModels(generator, event.getExistingFileHelper()));
-        }
+        //Server
+        PiscaryBlockTags blocktags = new PiscaryBlockTags(output, event.getLookupProvider(), event.getExistingFileHelper());
+        generator.addProvider(event.includeServer(), blocktags);
+        generator.addProvider(event.includeServer(), new PiscaryLootTables(output));
+        generator.addProvider(event.includeServer(), new PiscaryItemTags(output, event.getLookupProvider(), blocktags.contentsGetter(), event.getExistingFileHelper()));
+        generator.addProvider(event.includeServer(), new PiscaryRecipes(output));
+        generator.addProvider(event.includeServer(), new PiscaryDatabase(output));
+        generator.addProvider(event.includeServer(), new PiscaryDataMapProvider(output, event.getLookupProvider()));
+
+        //PackMetadataGenerator
+        generator.addProvider(true, new PackMetadataGenerator(output).add(PackMetadataSection.TYPE, new PackMetadataSection(
+                Component.literal("Resources for Harvest Piscary"),
+                DetectedVersion.BUILT_IN.getPackVersion(PackType.SERVER_DATA),
+                Optional.of(new InclusiveRange<>(0, Integer.MAX_VALUE)))));
     }
 
-    @SubscribeEvent
-    public static void registerLootData(RegistryEvent.Register<GlobalLootModifierSerializer<?>> event) {
-        Registry.register(Registry.LOOT_CONDITION_TYPE, new ResourceLocation(MODID, "biome_type"), BiomeTypeLocationCheck.BIOME_TYPE);
+    public static ResourceLocation prefix(String recycler) {
+        return new ResourceLocation(MODID, recycler);
     }
 
     public static class PiscarySounds {
-        public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, Piscary.MODID);
-        public static final RegistryObject<SoundEvent> RECYCLER = createSoundEvent("recycler");
+        public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(Registries.SOUND_EVENT, Piscary.MODID);
+        public static final Holder<SoundEvent> RECYCLER = createSoundEvent("recycler");
 
-        private static RegistryObject<SoundEvent> createSoundEvent(@Nonnull String name) {
-            return SOUNDS.register(name, () -> new SoundEvent(new ResourceLocation(Piscary.MODID, name)));
+        private static Holder<SoundEvent> createSoundEvent(@Nonnull String name) {
+            return SOUNDS.register(name, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(Piscary.MODID, name)));
         }
     }
 }

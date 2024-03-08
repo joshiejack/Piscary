@@ -1,28 +1,25 @@
 modLoader="javafml"
-loaderVersion="[36,)"
-license="MIT"
-credits="https://freesound.org/people/RutgerMuller/sounds/51044/ Recycler sound"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
 [[mods]]
-    modId="piscary"
-    version="${file.jarVersion}"
-    displayName="Piscary"
-    authors="joshiejack"
-    description='''Fish, Fish Trap, Hatchery, Recycler...'''
-[[dependencies.piscary]]
-    modId="forge"
-    mandatory=true
-    versionRange="[36,)"
-    ordering="NONE"
-    side="BOTH"
-[[dependencies.piscary]]
-    modId="minecraft"
-    mandatory=true
-    versionRange="[1.16.5,1.17)"
-    ordering="NONE"
-    side="BOTH"
-[[dependencies.piscary]]
+    modId="${mod_id}"
+    version="${mod_version}"
+    displayName="${mod_name}"
+    authors="${mod_authors}"
+    description='''${mod_description}'''
+[[dependencies.${mod_id}]]
     modId="penguinlib"
-    mandatory=true
-    versionRange="[0.3.0,)"
+    type="required"
+    versionRange="${penguinlib_version_range}"
+    ordering="AFTER"
+    side="BOTH"
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="${neo_version_range}"
     ordering="NONE"
     side="BOTH"
+[[accessTransformers]]
+    file="META-INF/accesstransformer.cfg"
+[[mixins]]
+    config="${mod_id}.mixins.json"

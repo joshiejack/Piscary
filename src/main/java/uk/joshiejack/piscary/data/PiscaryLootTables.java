@@ -1,68 +1,66 @@
 package uk.joshiejack.piscary.data;
 
-import com.google.common.collect.ImmutableList;
-import com.mojang.datafixers.util.Pair;
-import net.minecraft.block.Block;
-import net.minecraft.data.DataGenerator;
-import net.minecraft.data.LootTableProvider;
-import net.minecraft.data.loot.BlockLootTables;
-import net.minecraft.data.loot.EntityLootTables;
-import net.minecraft.data.loot.FishingLootTables;
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
-import net.minecraft.loot.*;
-import net.minecraft.loot.conditions.Alternative;
-import net.minecraft.loot.conditions.ILootCondition;
-import net.minecraft.loot.conditions.Inverted;
-import net.minecraft.loot.conditions.RandomChance;
-import net.minecraft.loot.functions.SetCount;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.BiomeDictionary;
-import net.minecraftforge.fml.RegistryObject;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.data.PackOutput;
+import net.minecraft.data.loot.BlockLootSubProvider;
+import net.minecraft.data.loot.EntityLootSubProvider;
+import net.minecraft.data.loot.LootTableProvider;
+import net.minecraft.data.loot.packs.VanillaFishingLoot;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BiomeTags;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.animal.AbstractFish;
+import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.predicates.AnyOfCondition;
+import net.minecraft.world.level.storage.loot.predicates.InvertedLootItemCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.neoforged.neoforge.common.Tags;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredItem;
+import org.jetbrains.annotations.NotNull;
 import uk.joshiejack.piscary.Piscary;
-import uk.joshiejack.piscary.block.PiscaryBlocks;
-import uk.joshiejack.piscary.entity.PiscaryEntities;
-import uk.joshiejack.piscary.item.PiscaryItems;
-import uk.joshiejack.piscary.loot.BiomeTypeLocationCheck;
-import uk.joshiejack.piscary.loot.BiomeTypePredicate;
+import uk.joshiejack.piscary.world.block.PiscaryBlocks;
+import uk.joshiejack.piscary.world.entity.PiscaryEntities;
+import uk.joshiejack.piscary.world.item.PiscaryItems;
+import uk.joshiejack.piscary.world.loot.BiomeTagCondition;
+import uk.joshiejack.piscary.world.loot.BiomeTypePredicate;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PiscaryLootTables extends LootTableProvider {
-    public PiscaryLootTables(DataGenerator generator) {
-        super(generator);
+    public PiscaryLootTables(PackOutput output) {
+        super(output, Set.of(), List.of(new SubProviderEntry(Blocks::new, LootContextParamSets.BLOCK),
+                new SubProviderEntry(Entities::new, LootContextParamSets.ENTITY),
+                new SubProviderEntry(Fishing::new, LootContextParamSets.FISHING)));
     }
 
-    @Override
-    protected void validate(Map<ResourceLocation, LootTable> map, @Nonnull ValidationTracker validationtracker) {
-        map.forEach((name, table) -> LootTableManager.validate(validationtracker, name, table));
-    }
 
-    @Nonnull
-    @Override
-    protected List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootParameterSet>> getTables() {
-        return ImmutableList.of(Pair.of(Blocks::new, LootParameterSets.BLOCK), Pair.of(Fishing::new, LootParameterSets.FISHING), Pair.of(Entities::new, LootParameterSets.ENTITY));
-    }
-
-    public static class Entities extends EntityLootTables {
-        @Override
-        protected Iterable<EntityType<?>> getKnownEntities() {
-            return ForgeRegistries.ENTITIES.getValues().stream()
-                    .filter((block) -> Piscary.MODID.equals(Objects.requireNonNull(block.getRegistryName()).getNamespace()))
-                    .collect(Collectors.toList());
+    public static class Entities extends EntityLootSubProvider {
+        protected Entities() {
+            super(FeatureFlags.REGISTRY.allFlags());
         }
 
         @Override
-        protected void addTables() {
+        protected @NotNull Stream<EntityType<?>> getKnownEntityTypes() {
+            return PiscaryEntities.ENTITIES.getEntries().stream().map(DeferredHolder::get);
+        }
+
+        @Override
+        public void generate() {
             this.addFishLootTable(PiscaryEntities.ANCHOVY, PiscaryItems.ANCHOVY, Items.BONE_MEAL);
             this.addFishLootTable(PiscaryEntities.ANGELFISH, PiscaryItems.ANGELFISH, Items.BONE_MEAL);
             this.addFishLootTable(PiscaryEntities.ANGLERFISH, PiscaryItems.ANGLERFISH, Items.GLOWSTONE_DUST);
@@ -97,88 +95,91 @@ public class PiscaryLootTables extends LootTableProvider {
             this.addFishLootTable(PiscaryEntities.WALLEYE, PiscaryItems.WALLEYE, Items.BONE_MEAL);
         }
 
-        private void addFishLootTable(RegistryObject<EntityType<?>> type, RegistryObject<Item> fish, Item bonus) {
+        private <T extends AbstractFish> void addFishLootTable(DeferredHolder<EntityType<?>, EntityType<T>> type, DeferredItem<Item> fish, Item bonus) {
             this.add(type.get(), LootTable.lootTable()
-                    .withPool(LootPool.lootPool().setRolls(ConstantRange.exactly(1))
-                            .add(ItemLootEntry.lootTableItem(fish.get()).apply(SetCount.setCount(ConstantRange.exactly(1)))))
-                    .withPool(LootPool.lootPool().setRolls(ConstantRange.exactly(1))
-                            .add(ItemLootEntry.lootTableItem(bonus)).when(RandomChance.randomChance(0.05F))));
+                    .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1))
+                            .add(LootItem.lootTableItem(fish.get()).apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))))
+                    .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1))
+                            .add(LootItem.lootTableItem(bonus)).when(LootItemRandomChanceCondition.randomChance(0.05F))));
         }
     }
 
-    public static class Blocks extends BlockLootTables {
+    public static class Blocks extends BlockLootSubProvider {
+        protected Blocks() {
+            super(Set.of(), FeatureFlags.REGISTRY.allFlags());
+        }
+
         @Nonnull
         @Override
-        protected Iterable<Block> getKnownBlocks() {
-            return ForgeRegistries.BLOCKS.getValues().stream()
-                    .filter((block) -> Piscary.MODID.equals(Objects.requireNonNull(block.getRegistryName()).getNamespace()))
-                    .collect(Collectors.toList());
+        protected @NotNull Iterable<Block> getKnownBlocks() {
+            return PiscaryBlocks.BLOCKS.getEntries().stream().map(DeferredHolder::value).collect(Collectors.toList());
+
         }
 
         @Override
-        protected void addTables() {
+        protected void generate() {
             dropSelf(PiscaryBlocks.RECYCLER.get());
             dropSelf(PiscaryBlocks.HATCHERY.get());
             dropSelf(PiscaryBlocks.FISH_TRAP.get());
         }
     }
 
-    public static class Fishing extends FishingLootTables {
-        public static final ILootCondition.IBuilder IN_OCEAN_BIOME = BiomeTypeLocationCheck.checkBiomeType(BiomeTypePredicate.Builder.type().setBiomeType(BiomeDictionary.Type.OCEAN));
-        public static final ILootCondition.IBuilder IN_COLD_BIOME = BiomeTypeLocationCheck.checkBiomeType(BiomeTypePredicate.Builder.type().setBiomeType(BiomeDictionary.Type.COLD));
-        public static final ILootCondition.IBuilder IN_HOT_BIOME = BiomeTypeLocationCheck.checkBiomeType(BiomeTypePredicate.Builder.type().setBiomeType(BiomeDictionary.Type.HOT));
-        public static final ILootCondition.IBuilder IN_SNOWY_BIOME = BiomeTypeLocationCheck.checkBiomeType(BiomeTypePredicate.Builder.type().setBiomeType(BiomeDictionary.Type.SNOWY));
-        public static final ILootCondition.IBuilder IN_RIVER_BIOME = BiomeTypeLocationCheck.checkBiomeType(BiomeTypePredicate.Builder.type().setBiomeType(BiomeDictionary.Type.RIVER));
-        public static final ILootCondition.IBuilder IN_SWAMPY_BIOME = BiomeTypeLocationCheck.checkBiomeType(BiomeTypePredicate.Builder.type().setBiomeType(BiomeDictionary.Type.WET));
-        public static final ILootCondition.IBuilder IN_JUNGLE_BIOME = BiomeTypeLocationCheck.checkBiomeType(BiomeTypePredicate.Builder.type().setBiomeType(BiomeDictionary.Type.JUNGLE));
+    public static class Fishing extends VanillaFishingLoot {
+        public static final LootItemCondition.Builder IN_OCEAN_BIOME = BiomeTagCondition.checkBiomeType(BiomeTypePredicate.Builder.type().setBiomeType(BiomeTags.IS_OCEAN));
+        public static final LootItemCondition.Builder IN_COLD_BIOME = BiomeTagCondition.checkBiomeType(BiomeTypePredicate.Builder.type().setBiomeType(Tags.Biomes.IS_COLD));
+        public static final LootItemCondition.Builder IN_HOT_BIOME = BiomeTagCondition.checkBiomeType(BiomeTypePredicate.Builder.type().setBiomeType(Tags.Biomes.IS_HOT));
+        public static final LootItemCondition.Builder IN_SNOWY_BIOME = BiomeTagCondition.checkBiomeType(BiomeTypePredicate.Builder.type().setBiomeType(Tags.Biomes.IS_SNOWY));
+        public static final LootItemCondition.Builder IN_RIVER_BIOME = BiomeTagCondition.checkBiomeType(BiomeTypePredicate.Builder.type().setBiomeType(BiomeTags.IS_RIVER));
+        public static final LootItemCondition.Builder IN_SWAMPY_BIOME = BiomeTagCondition.checkBiomeType(BiomeTypePredicate.Builder.type().setBiomeType(Tags.Biomes.IS_WET));
+        public static final LootItemCondition.Builder IN_JUNGLE_BIOME = BiomeTagCondition.checkBiomeType(BiomeTypePredicate.Builder.type().setBiomeType(BiomeTags.IS_JUNGLE));
 
         @Override
-        public void accept(@Nonnull BiConsumer<ResourceLocation, LootTable.Builder> builder) {
+        public void generate(BiConsumer<ResourceLocation, LootTable.Builder> builder) {
             builder.accept(new ResourceLocation(Piscary.MODID, "gameplay/fishing/fish"), LootTable.lootTable().withPool(LootPool.lootPool()
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.ANCHOVY.get()).setWeight(32).when(IN_OCEAN_BIOME).when(Inverted.invert(IN_HOT_BIOME)))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.ANGELFISH.get()).setWeight(3).when(IN_JUNGLE_BIOME))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.ANGLERFISH.get()).setWeight(1).when(IN_OCEAN_BIOME).when(IN_SNOWY_BIOME))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.BASS.get()).setWeight(12).when(Inverted.invert(Alternative.alternative(IN_COLD_BIOME, IN_HOT_BIOME))))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.BLUE_TANG.get()).setWeight(1).when(IN_OCEAN_BIOME).when(IN_HOT_BIOME))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.BOWFIN.get()).setWeight(3).when(Inverted.invert(IN_HOT_BIOME)).when(Inverted.invert(IN_OCEAN_BIOME)))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.BUTTERFLYFISH.get()).setWeight(1).when(IN_OCEAN_BIOME).when(IN_HOT_BIOME))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.CARP.get()).setWeight(2).when(Inverted.invert(IN_HOT_BIOME)).when(Inverted.invert(IN_OCEAN_BIOME)))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.CATFISH.get()).setWeight(3).when(IN_RIVER_BIOME))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.CHUB.get()).setWeight(54).when(Inverted.invert(IN_HOT_BIOME)).when(Inverted.invert(IN_OCEAN_BIOME)))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.DAMSELFISH.get()).setWeight(3).when(IN_OCEAN_BIOME).when(IN_HOT_BIOME))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.ELECTRIC_RAY.get()).setWeight(1).when(IN_OCEAN_BIOME))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.GOLDFISH.get()).setWeight(37).when(Inverted.invert(IN_HOT_BIOME)).when(Inverted.invert(IN_SWAMPY_BIOME)))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.KOI.get()).setWeight(1).when(Inverted.invert(IN_HOT_BIOME)).when(Inverted.invert(IN_SWAMPY_BIOME)))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.LAMPREY.get()).setWeight(4).when(Inverted.invert(IN_HOT_BIOME)).when(Inverted.invert(IN_COLD_BIOME)))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.LUNGFISH.get()).setWeight(1).when(Inverted.invert(IN_COLD_BIOME)).when(Inverted.invert(IN_OCEAN_BIOME)))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.MANTA_RAY.get()).setWeight(1).when(IN_OCEAN_BIOME).when(Inverted.invert(IN_SNOWY_BIOME)))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.MINNOW.get()).setWeight(102).when(Inverted.invert(IN_OCEAN_BIOME)))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.NEON_TETRA.get()).setWeight(2).when(IN_JUNGLE_BIOME))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.NORTHERN_PIKE.get()).setWeight(1).when(IN_SNOWY_BIOME).when(IN_RIVER_BIOME))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.PERCH.get()).setWeight(21).when(IN_RIVER_BIOME))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.PICKEREL.get()).setWeight(2).when(Inverted.invert(IN_HOT_BIOME)).when(Inverted.invert(IN_OCEAN_BIOME)))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.PIRANHA.get()).setWeight(1).when(IN_JUNGLE_BIOME))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.PUPFISH.get()).setWeight(4).when(Inverted.invert(IN_HOT_BIOME)).when(Inverted.invert(IN_OCEAN_BIOME)))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.SARDINE.get()).setWeight(30).when(IN_OCEAN_BIOME).when(Inverted.invert(IN_HOT_BIOME)))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.SIAMESE_FIGHTING_FISH.get()).setWeight(2).when(Inverted.invert(IN_HOT_BIOME)).when(Inverted.invert(IN_OCEAN_BIOME)))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.STINGRAY.get()).setWeight(1).when(IN_OCEAN_BIOME))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.SILVER_STRIPE_BLAASOP.get()).setWeight(1).when(IN_OCEAN_BIOME).when(IN_SNOWY_BIOME))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.TROUT.get()).setWeight(14).when(Inverted.invert(IN_HOT_BIOME)))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.TUNA.get()).setWeight(2).when(IN_OCEAN_BIOME).when(Inverted.invert(IN_HOT_BIOME)))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.WALLEYE.get()).setWeight(8).when(Inverted.invert(IN_HOT_BIOME)).when(Inverted.invert(IN_COLD_BIOME)))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.WHITEMARGIN_STARGAZER.get()).setWeight(2).when(IN_HOT_BIOME).when(IN_OCEAN_BIOME))
+                    .add(LootItem.lootTableItem(PiscaryItems.ANCHOVY.get()).setWeight(32).when(IN_OCEAN_BIOME).when(AnyOfCondition.anyOf(IN_HOT_BIOME)))
+                    .add(LootItem.lootTableItem(PiscaryItems.ANGELFISH.get()).setWeight(3).when(IN_JUNGLE_BIOME))
+                    .add(LootItem.lootTableItem(PiscaryItems.ANGLERFISH.get()).setWeight(1).when(IN_OCEAN_BIOME).when(IN_SNOWY_BIOME))
+                    .add(LootItem.lootTableItem(PiscaryItems.BASS.get()).setWeight(12).when(InvertedLootItemCondition.invert(AnyOfCondition.anyOf(IN_COLD_BIOME, IN_HOT_BIOME))))
+                    .add(LootItem.lootTableItem(PiscaryItems.BLUE_TANG.get()).setWeight(1).when(IN_OCEAN_BIOME).when(IN_HOT_BIOME))
+                    .add(LootItem.lootTableItem(PiscaryItems.BOWFIN.get()).setWeight(3).when(InvertedLootItemCondition.invert(IN_HOT_BIOME)).when(InvertedLootItemCondition.invert(IN_OCEAN_BIOME)))
+                    .add(LootItem.lootTableItem(PiscaryItems.BUTTERFLYFISH.get()).setWeight(1).when(IN_OCEAN_BIOME).when(IN_HOT_BIOME))
+                    .add(LootItem.lootTableItem(PiscaryItems.CARP.get()).setWeight(2).when(InvertedLootItemCondition.invert(IN_HOT_BIOME)).when(InvertedLootItemCondition.invert(IN_OCEAN_BIOME)))
+                    .add(LootItem.lootTableItem(PiscaryItems.CATFISH.get()).setWeight(3).when(IN_RIVER_BIOME))
+                    .add(LootItem.lootTableItem(PiscaryItems.CHUB.get()).setWeight(54).when(InvertedLootItemCondition.invert(IN_HOT_BIOME)).when(InvertedLootItemCondition.invert(IN_OCEAN_BIOME)))
+                    .add(LootItem.lootTableItem(PiscaryItems.DAMSELFISH.get()).setWeight(3).when(IN_OCEAN_BIOME).when(IN_HOT_BIOME))
+                    .add(LootItem.lootTableItem(PiscaryItems.ELECTRIC_RAY.get()).setWeight(1).when(IN_OCEAN_BIOME))
+                    .add(LootItem.lootTableItem(PiscaryItems.GOLDFISH.get()).setWeight(37).when(InvertedLootItemCondition.invert(IN_HOT_BIOME)).when(InvertedLootItemCondition.invert(IN_SWAMPY_BIOME)))
+                    .add(LootItem.lootTableItem(PiscaryItems.KOI.get()).setWeight(1).when(InvertedLootItemCondition.invert(IN_HOT_BIOME)).when(InvertedLootItemCondition.invert(IN_SWAMPY_BIOME)))
+                    .add(LootItem.lootTableItem(PiscaryItems.LAMPREY.get()).setWeight(4).when(InvertedLootItemCondition.invert(IN_HOT_BIOME)).when(InvertedLootItemCondition.invert(IN_COLD_BIOME)))
+                    .add(LootItem.lootTableItem(PiscaryItems.LUNGFISH.get()).setWeight(1).when(InvertedLootItemCondition.invert(IN_COLD_BIOME)).when(InvertedLootItemCondition.invert(IN_OCEAN_BIOME)))
+                    .add(LootItem.lootTableItem(PiscaryItems.MANTA_RAY.get()).setWeight(1).when(IN_OCEAN_BIOME).when(InvertedLootItemCondition.invert(IN_SNOWY_BIOME)))
+                    .add(LootItem.lootTableItem(PiscaryItems.MINNOW.get()).setWeight(102).when(InvertedLootItemCondition.invert(IN_OCEAN_BIOME)))
+                    .add(LootItem.lootTableItem(PiscaryItems.NEON_TETRA.get()).setWeight(2).when(IN_JUNGLE_BIOME))
+                    .add(LootItem.lootTableItem(PiscaryItems.NORTHERN_PIKE.get()).setWeight(1).when(IN_SNOWY_BIOME).when(IN_RIVER_BIOME))
+                    .add(LootItem.lootTableItem(PiscaryItems.PERCH.get()).setWeight(21).when(IN_RIVER_BIOME))
+                    .add(LootItem.lootTableItem(PiscaryItems.PICKEREL.get()).setWeight(2).when(InvertedLootItemCondition.invert(IN_HOT_BIOME)).when(InvertedLootItemCondition.invert(IN_OCEAN_BIOME)))
+                    .add(LootItem.lootTableItem(PiscaryItems.PIRANHA.get()).setWeight(1).when(IN_JUNGLE_BIOME))
+                    .add(LootItem.lootTableItem(PiscaryItems.PUPFISH.get()).setWeight(4).when(InvertedLootItemCondition.invert(IN_HOT_BIOME)).when(InvertedLootItemCondition.invert(IN_OCEAN_BIOME)))
+                    .add(LootItem.lootTableItem(PiscaryItems.SARDINE.get()).setWeight(30).when(IN_OCEAN_BIOME).when(InvertedLootItemCondition.invert(IN_HOT_BIOME)))
+                    .add(LootItem.lootTableItem(PiscaryItems.SIAMESE_FIGHTING_FISH.get()).setWeight(2).when(InvertedLootItemCondition.invert(IN_HOT_BIOME)).when(InvertedLootItemCondition.invert(IN_OCEAN_BIOME)))
+                    .add(LootItem.lootTableItem(PiscaryItems.STINGRAY.get()).setWeight(1).when(IN_OCEAN_BIOME))
+                    .add(LootItem.lootTableItem(PiscaryItems.SILVER_STRIPE_BLAASOP.get()).setWeight(1).when(IN_OCEAN_BIOME).when(IN_SNOWY_BIOME))
+                    .add(LootItem.lootTableItem(PiscaryItems.TROUT.get()).setWeight(14).when(InvertedLootItemCondition.invert(IN_HOT_BIOME)))
+                    .add(LootItem.lootTableItem(PiscaryItems.TUNA.get()).setWeight(2).when(IN_OCEAN_BIOME).when(InvertedLootItemCondition.invert(IN_HOT_BIOME)))
+                    .add(LootItem.lootTableItem(PiscaryItems.WALLEYE.get()).setWeight(8).when(InvertedLootItemCondition.invert(IN_HOT_BIOME)).when(InvertedLootItemCondition.invert(IN_COLD_BIOME)))
+                    .add(LootItem.lootTableItem(PiscaryItems.WHITEMARGIN_STARGAZER.get()).setWeight(2).when(IN_HOT_BIOME).when(IN_OCEAN_BIOME))
             ));
 
             builder.accept(new ResourceLocation(Piscary.MODID, "gameplay/fishing/junk"), LootTable.lootTable().withPool(LootPool.lootPool()
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.FISH_BONES.get()).setWeight(17))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.OLD_BOOT.get()).setWeight(14))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.EMPTY_CAN.get()).setWeight(16))
+                    .add(LootItem.lootTableItem(PiscaryItems.FISH_BONES.get()).setWeight(17))
+                    .add(LootItem.lootTableItem(PiscaryItems.OLD_BOOT.get()).setWeight(14))
+                    .add(LootItem.lootTableItem(PiscaryItems.EMPTY_CAN.get()).setWeight(16))
             ));
 
             builder.accept(new ResourceLocation(Piscary.MODID, "gameplay/fishing/treasure"), LootTable.lootTable().withPool(LootPool.lootPool()
-                    .add(ItemLootEntry.lootTableItem(Items.EMERALD).setWeight(5))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.FISH_FOSSIL.get()).setWeight(10).when(IN_OCEAN_BIOME).when(Inverted.invert(IN_SNOWY_BIOME)))
-                    .add(ItemLootEntry.lootTableItem(PiscaryItems.PIRATE_TREASURE.get()).setWeight(1).when(IN_OCEAN_BIOME).when(Inverted.invert(IN_SNOWY_BIOME)))
+                    .add(LootItem.lootTableItem(Items.EMERALD).setWeight(5))
+                    .add(LootItem.lootTableItem(PiscaryItems.FISH_FOSSIL.get()).setWeight(10).when(IN_OCEAN_BIOME).when(InvertedLootItemCondition.invert(IN_SNOWY_BIOME)))
+                    .add(LootItem.lootTableItem(PiscaryItems.PIRATE_TREASURE.get()).setWeight(1).when(IN_OCEAN_BIOME).when(InvertedLootItemCondition.invert(IN_SNOWY_BIOME)))
             ));
         }
     }

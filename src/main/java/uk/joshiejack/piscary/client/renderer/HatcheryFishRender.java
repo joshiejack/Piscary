@@ -1,30 +1,27 @@
 package uk.joshiejack.piscary.client.renderer;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import uk.joshiejack.piscary.tileentity.HatcheryTileEntity;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import uk.joshiejack.piscary.world.block.entity.HatcheryBlockEntity;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
-import java.util.Random;
 
 @SuppressWarnings("ConstantConditions")
-@OnlyIn(Dist.CLIENT)
 public class HatcheryFishRender {
-    private final HatcheryTileEntity tile;
+    private final HatcheryBlockEntity tile;
     private final long[] rotations = new long[10];
     private final boolean[] clockwise = new boolean[10];
     private final int[] speed = new int[10];
     private final float[] height = new float[10];
     private Entity displayEntity = null;
 
-    public HatcheryFishRender(HatcheryTileEntity tile) {
+    public HatcheryFishRender(HatcheryBlockEntity tile) {
         this.tile = tile;
     }
 
-    public void reloadFish(EntityType<?> type, int count, Random random) {
+    public Entity reloadFish(EntityType<?> type, int count, RandomSource random) {
         displayEntity = getOrCreateDisplayEntity(type);
         for (int i = 0; i < count; i++) {
             rotations[i] = random.nextInt(720000);
@@ -32,6 +29,8 @@ public class HatcheryFishRender {
             speed[i] = 1 + random.nextInt(5);
             height[i] = i * 1F;
         }
+
+        return displayEntity;
     }
 
     public void updateFish() {

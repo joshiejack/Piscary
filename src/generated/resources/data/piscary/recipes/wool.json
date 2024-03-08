@@ -3,6 +3,8 @@
   "ingredient": {
     "tag": "minecraft:wool"
   },
-  "result": "minecraft:string",
-  "count": 3
+  "result": {
+    "count": 3,
+    "item": "minecraft:string"
+  }
 }

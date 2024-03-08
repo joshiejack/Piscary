@@ -1,54 +1,45 @@
 package uk.joshiejack.piscary.network;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.EntityType;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.registries.ForgeRegistries;
-import uk.joshiejack.penguinlib.network.packet.BlockRenderUpdatePacket;
-import uk.joshiejack.penguinlib.util.PenguinLoader;
-import uk.joshiejack.piscary.tileentity.HatcheryTileEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import uk.joshiejack.penguinlib.PenguinLib;
+import uk.joshiejack.penguinlib.network.packet.PenguinPacket;
+import uk.joshiejack.penguinlib.util.registry.Packet;
+import uk.joshiejack.piscary.world.block.entity.HatcheryBlockEntity;
 
-@PenguinLoader.Packet(NetworkDirection.PLAY_TO_CLIENT)
-public class SyncHatcheryPacket extends BlockRenderUpdatePacket {
-    private EntityType<?> type;
-    private int count;
+@Packet(PacketFlow.CLIENTBOUND)
+public record SyncHatcheryPacket(BlockPos pos, @Nullable EntityType<?> type, int count) implements PenguinPacket {
+    public static final ResourceLocation ID = PenguinLib.prefix("sync_hatchery");
 
-    public SyncHatcheryPacket(){}
-    public SyncHatcheryPacket(BlockPos pos, EntityType<?> type, int count) {
-        super(pos);
-        this.type = type;
-        this.count = count;
+    @Override
+    public @NotNull ResourceLocation id() {
+        return ID;
+    }
+
+
+    public SyncHatcheryPacket(FriendlyByteBuf buf) {
+        this(buf.readBlockPos(), buf.readBoolean() ? buf.readById(BuiltInRegistries.ENTITY_TYPE) : null, buf.readByte());
     }
 
     @Override
-    public void encode(PacketBuffer pb) {
-        super.encode(pb);
+    public void write(FriendlyByteBuf pb) {
+        pb.writeBlockPos(pos);
         pb.writeBoolean(type != null);
         if (type != null)
-            pb.writeRegistryId(type);
+            pb.writeId(BuiltInRegistries.ENTITY_TYPE, type);
         pb.writeByte(count);
     }
 
     @Override
-    public void decode(PacketBuffer pb) {
-        super.decode(pb);
-        if (pb.readBoolean())
-            type = pb.readRegistryIdSafe(ForgeRegistries.ENTITIES.getRegistrySuperType());
-        count = pb.readByte();
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public void handleClientPacket() {
-        assert Minecraft.getInstance().level != null;
-        TileEntity tile = Minecraft.getInstance().level.getBlockEntity(pos);
-        if (tile instanceof HatcheryTileEntity) {
-            ((HatcheryTileEntity)tile).setEntityTypeAndCount(type, count);
-        }
+    public void handle(Player player) {
+        if (player.level().getBlockEntity(pos) instanceof HatcheryBlockEntity hatchery)
+            hatchery.setEntityTypeAndCount(type, count);
     }
 }

@@ -3,6 +3,7 @@
   "ingredient": {
     "item": "piscary:old_boot"
   },
-  "result": "minecraft:leather",
-  "count": 1
+  "result": {
+    "item": "minecraft:leather"
+  }
 }

@@ -1,20 +1,20 @@
 package uk.joshiejack.piscary.data;
 
-import net.minecraft.data.DataGenerator;
-import net.minecraft.state.properties.DoubleBlockHalf;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.generators.BlockStateProvider;
-import net.minecraftforge.client.model.generators.ModelFile;
-import net.minecraftforge.client.model.generators.VariantBlockStateBuilder;
-import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraft.core.Direction;
+import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
+import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import uk.joshiejack.piscary.Piscary;
-import uk.joshiejack.piscary.block.PiscaryBlocks;
-import uk.joshiejack.piscary.block.RecyclerBlock;
+import uk.joshiejack.piscary.world.block.PiscaryBlocks;
+import uk.joshiejack.piscary.world.block.RecyclerBlock;
 
 public class PiscaryBlockStates extends BlockStateProvider {
-    public PiscaryBlockStates(DataGenerator gen, ExistingFileHelper exFileHelper) {
-        super(gen, Piscary.MODID, exFileHelper);
+    public PiscaryBlockStates(PackOutput output, ExistingFileHelper existingFileHelper) {
+        super(output, Piscary.MODID, existingFileHelper);
     }
 
     @Override

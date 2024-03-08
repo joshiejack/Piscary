@@ -1,0 +1,10 @@
+{
+  "recycler": {
+    "sounds": [
+      "piscary:recycler_1",
+      "piscary:recycler_2",
+      "piscary:recycler_3"
+    ],
+    "subtitle": "subtitles.recycler"
+  }
+}

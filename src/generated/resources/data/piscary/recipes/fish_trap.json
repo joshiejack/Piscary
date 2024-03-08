@@ -1,18 +1,19 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "S": {
+      "tag": "forge:string"
+    },
+    "W": {
+      "tag": "minecraft:logs"
+    }
+  },
   "pattern": [
     "WSW",
     "S S",
     "WSW"
   ],
-  "key": {
-    "W": {
-      "tag": "minecraft:logs"
-    },
-    "S": {
-      "tag": "forge:string"
-    }
-  },
   "result": {
     "item": "piscary:fish_trap"
   }

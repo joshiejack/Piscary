@@ -1,30 +1,31 @@
 package uk.joshiejack.piscary.data;
 
+import it.unimi.dsi.fastutil.Pair;
 import joptsimple.internal.Strings;
-import net.minecraft.data.DataGenerator;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraftforge.client.model.generators.ItemModelProvider;
-import net.minecraftforge.client.model.generators.ModelFile;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.fml.RegistryObject;
-import net.minecraftforge.registries.DeferredRegister;
+import net.minecraft.data.PackOutput;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
+import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import uk.joshiejack.piscary.Piscary;
-import uk.joshiejack.piscary.entity.PiscaryEntities;
-import uk.joshiejack.piscary.item.PiscaryItems;
+import uk.joshiejack.piscary.world.entity.PiscaryEntities;
+import uk.joshiejack.piscary.world.item.PiscaryItems;
 
 import java.util.Objects;
 
 public class PiscaryItemModels extends ItemModelProvider {
-    public PiscaryItemModels(DataGenerator generator, ExistingFileHelper existingFileHelper) {
-        super(generator, Piscary.MODID, existingFileHelper);
+    public PiscaryItemModels(PackOutput output, ExistingFileHelper existingFileHelper) {
+        super(output, Piscary.MODID, existingFileHelper);
     }
 
     private void registerModels(DeferredRegister<Item> items) {
         items.getEntries().stream()
-                .map(RegistryObject::get)
-                .forEach(item -> {
-                    String path = Objects.requireNonNull(item.getRegistryName()).getPath();
+                .map(dh -> Pair.of(dh.getId(), dh.get()))
+                .forEach(pair -> {
+                    String path = Objects.requireNonNull(pair.key()).getPath();
+                    Item item = pair.value();
                     if (item instanceof BlockItem)
                         getBuilder(path).parent(new ModelFile.UncheckedModelFile(modLoc("block/" + path)));
                     else {
@@ -34,7 +35,7 @@ public class PiscaryItemModels extends ItemModelProvider {
                             String subdir =
                                     path.contains("bait") ? Strings.EMPTY :
                                             item.getFoodProperties() != null && item.getFoodProperties().getNutrition() > 3 ? "meal/" :
-                                                    item.getRegistryName().getPath().contains("bucket") ? "bucket/" :
+                                                    pair.key().getPath().contains("bucket") ? "bucket/" :
                                                             item.getFoodProperties() == null ? "loot/" :
                                                                     "fish/";
                             singleTexture(path, mcLoc("item/generated"), "layer0", modLoc("item/" + subdir + path.replace("_bucket", "")));

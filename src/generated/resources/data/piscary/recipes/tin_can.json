@@ -3,6 +3,8 @@
   "ingredient": {
     "item": "piscary:empty_can"
   },
-  "result": "minecraft:iron_nugget",
-  "count": 3
+  "result": {
+    "count": 3,
+    "item": "minecraft:iron_nugget"
+  }
 }

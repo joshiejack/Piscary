@@ -2,16 +2,14 @@ package uk.joshiejack.piscary.client;
 
 import it.unimi.dsi.fastutil.objects.Object2FloatMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
-import net.minecraft.entity.EntityType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraft.world.entity.EntityType;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 import org.apache.commons.lang3.tuple.Pair;
-import uk.joshiejack.penguinlib.events.DatabaseLoadedEvent;
+import uk.joshiejack.penguinlib.event.DatabaseLoadedEvent;
 import uk.joshiejack.piscary.Piscary;
 
-@OnlyIn(Dist.CLIENT)
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = Piscary.MODID)
 public class HatcheryClient {
     private static final Object2FloatMap<EntityType<?>> HATCHERY_RENDERERS = new Object2FloatOpenHashMap<>();

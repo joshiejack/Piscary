@@ -1,22 +1,31 @@
 package uk.joshiejack.piscary.client.model;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.client.renderer.entity.model.EntityModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.passive.fish.AbstractFishEntity;
-import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.animal.AbstractFish;
+import org.jetbrains.annotations.NotNull;
 
-@OnlyIn(Dist.CLIENT)
-public abstract class AbstractFishModel extends EntityModel<AbstractFishEntity> {
-    protected ModelRenderer tail;
-    protected ModelRenderer body;
+public abstract class AbstractFishModel extends EntityModel<AbstractFish> {
+    protected final ModelPart tail;
+    protected final ModelPart body;
+    protected Iterable<ModelPart> parts;
+
+
+    public AbstractFishModel(ModelPart root) {
+        this.tail = root.getChild("tail");
+        this.body = root.getChild("body");
+    }
+
+    public Iterable<ModelPart> parts() {
+        return ImmutableList.of(tail, body);
+    }
 
     @Override
-    public void setupAnim(AbstractFishEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+    public void setupAnim(AbstractFish entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         float f = 1.0F;
         float f1 = 1.0F;
         if (!entity.isInWater()) {
@@ -24,20 +33,17 @@ public abstract class AbstractFishModel extends EntityModel<AbstractFishEntity> 
             f1 = 1.7F;
         }
 
-        tail.yRot = -f * 0.35F * MathHelper.sin(f1 * 0.6F * ageInTicks);
+        tail.yRot = -f * 0.35F * Mth.sin(f1 * 0.6F * ageInTicks);
     }
 
 
     @Override
-    public void renderToBuffer(MatrixStack matrixStack, IVertexBuilder buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        parts().forEach(part -> part.render(matrixStack, buffer, packedLight, packedOverlay, red, green, blue, alpha));
+    public void renderToBuffer(@NotNull PoseStack matrixStack, @NotNull VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+        if (parts == null) parts = parts();
+        parts.forEach(part -> part.render(matrixStack, buffer, packedLight, packedOverlay, red, green, blue, alpha));
     }
 
-    public Iterable<ModelRenderer> parts() {
-        return ImmutableList.of(tail, body);
-    }
-
-    protected void setRotationAngle(ModelRenderer modelRenderer, float x, float y, float z) {
+    protected void setRotationAngle(ModelPart modelRenderer, float x, float y, float z) {
         modelRenderer.xRot = x;
         modelRenderer.yRot = y;
         modelRenderer.zRot = z;

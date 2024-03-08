@@ -1,27 +1,30 @@
 package uk.joshiejack.piscary.data;
 
 import com.google.common.collect.Lists;
-import net.minecraft.data.BlockTagsProvider;
-import net.minecraft.data.DataGenerator;
-import net.minecraft.data.ItemTagsProvider;
-import net.minecraft.data.TagsProvider;
-import net.minecraft.item.Item;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.data.PackOutput;
+import net.minecraft.data.tags.IntrinsicHolderTagsProvider;
+import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.tags.ItemTags;
-import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import org.jetbrains.annotations.NotNull;
+import uk.joshiejack.penguinlib.data.generator.PenguinItemTags;
 import uk.joshiejack.penguinlib.util.PenguinTags;
 import uk.joshiejack.piscary.Piscary;
-import uk.joshiejack.piscary.item.PiscaryItems;
+import uk.joshiejack.piscary.world.item.PiscaryItems;
 
-import javax.annotation.Nullable;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-public class PiscaryItemTags extends ItemTagsProvider {
-    public PiscaryItemTags(DataGenerator generator, BlockTagsProvider blockTagProvider, @Nullable ExistingFileHelper existingFileHelper) {
-        super(generator, blockTagProvider, Piscary.MODID, existingFileHelper);
+public class PiscaryItemTags extends PenguinItemTags {
+    public PiscaryItemTags(PackOutput output, CompletableFuture<HolderLookup.Provider> provider, CompletableFuture<TagsProvider.TagLookup<Block>> blockLookup, ExistingFileHelper existingFileHelper) {
+        super(output, provider, blockLookup, existingFileHelper, Piscary.MODID);
     }
 
     @Override
-    public void addTags() {
+    protected void addTags(HolderLookup.@NotNull Provider provider) {
         List<Item> fishes = Lists.newArrayList(PiscaryItems.ANCHOVY.get(), PiscaryItems.ANGELFISH.get(), PiscaryItems.ANGLERFISH.get(), PiscaryItems.BASS.get()
                 , PiscaryItems.BLUE_TANG.get(), PiscaryItems.BOWFIN.get(), PiscaryItems.BUTTERFLYFISH.get(), PiscaryItems.CARP.get()
                 , PiscaryItems.CATFISH.get(), PiscaryItems.CHUB.get()
@@ -32,8 +35,8 @@ public class PiscaryItemTags extends ItemTagsProvider {
                 , PiscaryItems.SARDINE.get(), PiscaryItems.SIAMESE_FIGHTING_FISH.get(), PiscaryItems.WHITEMARGIN_STARGAZER.get()
                 , PiscaryItems.STINGRAY.get(), PiscaryItems.SILVER_STRIPE_BLAASOP.get(), PiscaryItems.TROUT.get(), PiscaryItems.TUNA.get()
                 , PiscaryItems.WALLEYE.get());
-        TagsProvider.Builder<Item> rawTag = tag(PenguinTags.RAW_FISHES);
-        TagsProvider.Builder<Item> allTag = tag(ItemTags.FISHES);
+        IntrinsicHolderTagsProvider.IntrinsicTagAppender<Item> rawTag = tag(PenguinTags.RAW_FISHES);
+        IntrinsicHolderTagsProvider.IntrinsicTagAppender<Item> allTag = tag(ItemTags.FISHES);
 
         fishes.forEach(fish -> {
             rawTag.add(fish);

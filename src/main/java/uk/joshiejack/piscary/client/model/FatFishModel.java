@@ -1,40 +1,48 @@
 package uk.joshiejack.piscary.client.model;
 
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
+import com.google.common.collect.ImmutableList;
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.*;
+import net.minecraft.resources.ResourceLocation;
+import uk.joshiejack.piscary.Piscary;
+import uk.joshiejack.piscary.client.model.AbstractFishModel;
+
+
 public class FatFishModel extends AbstractFishModel {
-    public FatFishModel() {
-        texWidth = 64;
-        texHeight = 32;
+	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(Piscary.MODID, "fat_fish"), "main");
+	private final ModelPart fins;
 
-        tail = new ModelRenderer(this);
-        tail.setPos(0.0F, 23.0F, 9.75F);
-        tail.texOffs(22, 2).addBox(0.0F, -6.3F, 4.0F, 0.0F, 8.0F, 4.0F, 0.0F, false);
-        tail.texOffs(0, 4).addBox(0.0F, -4.3F, 0.0F, 0.0F, 4.0F, 4.0F, 0.0F, false);
+	public FatFishModel(ModelPart root) {
+		super(root);
+		this.fins = root.getChild("fins");
+	}
 
-        body = new ModelRenderer(this);
-        body.setPos(0.0F, 24.0F, 0.0F);
-        body.texOffs(0, 0).addBox(-2.0F, -8.0F, -3.0F, 4.0F, 8.0F, 14.0F, 0.0F, false);
-        body.texOffs(0, 0).addBox(-2.0F, -5.2F, -5.0F, 4.0F, 4.0F, 2.0F, 0.0F, false);
-        body.texOffs(0, 18).addBox(0.0F, -12.0F, 3.0F, 0.0F, 4.0F, 6.0F, 0.0F, false);
-        body.texOffs(0, 0).addBox(0.0F, 0.0F, 3.0F, 0.0F, 2.0F, 6.0F, 0.0F, false);
+	public static LayerDefinition createBodyLayer() {
+		MeshDefinition meshdefinition = new MeshDefinition();
+		PartDefinition partdefinition = meshdefinition.getRoot();
 
-        ModelRenderer fins = new ModelRenderer(this);
-        fins.setPos(-1.0F, 23.0F, -2.0F);
+		PartDefinition tail = partdefinition.addOrReplaceChild("tail", CubeListBuilder.create().texOffs(22, 2).addBox(0.0F, -6.3F, 4.0F, 0.0F, 8.0F, 4.0F, new CubeDeformation(0.0F))
+		.texOffs(0, 4).addBox(0.0F, -4.3F, 0.0F, 0.0F, 4.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 23.0F, 9.75F));
 
-        ModelRenderer fin_right_r1 = new ModelRenderer(this);
-        fin_right_r1.setPos(-1.0F, -1.0F, 3.0F);
-        fins.addChild(fin_right_r1);
-        setRotationAngle(fin_right_r1, -0.1745F, -0.6109F, 0.2618F);
-        fin_right_r1.texOffs(0, 18).addBox(0.0F, -1.0F, 0.0F, 0.0F, 2.0F, 4.0F, 0.0F, false);
+		PartDefinition body = partdefinition.addOrReplaceChild("body", CubeListBuilder.create().texOffs(0, 0).addBox(-2.0F, -8.0F, -3.0F, 4.0F, 8.0F, 14.0F, new CubeDeformation(0.0F))
+		.texOffs(0, 0).addBox(-2.0F, -5.2F, -5.0F, 4.0F, 4.0F, 2.0F, new CubeDeformation(0.0F))
+		.texOffs(0, 18).addBox(0.0F, -12.0F, 3.0F, 0.0F, 4.0F, 6.0F, new CubeDeformation(0.0F))
+		.texOffs(0, 0).addBox(0.0F, 0.0F, 3.0F, 0.0F, 2.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 24.0F, 0.0F));
 
-        ModelRenderer fin_left_r1 = new ModelRenderer(this);
-        fin_left_r1.setPos(3.0F, -1.0F, 3.0F);
-        fins.addChild(fin_left_r1);
-        setRotationAngle(fin_left_r1, -0.1745F, 0.6109F, -0.2618F);
-        fin_left_r1.texOffs(0, 8).addBox(0.0F, -1.0F, 0.0F, 0.0F, 2.0F, 4.0F, 0.0F, false);
-    }
+		PartDefinition fins = partdefinition.addOrReplaceChild("fins", CubeListBuilder.create(), PartPose.offset(-1.0F, 23.0F, -2.0F));
+
+		PartDefinition fin_right_r1 = fins.addOrReplaceChild("fin_right_r1", CubeListBuilder.create().texOffs(0, 18).addBox(0.0F, -1.0F, 0.0F, 0.0F, 2.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-1.0F, -1.0F, 3.0F, -0.1745F, -0.6109F, 0.2618F));
+
+		PartDefinition fin_left_r1 = fins.addOrReplaceChild("fin_left_r1", CubeListBuilder.create().texOffs(0, 8).addBox(0.0F, -1.0F, 0.0F, 0.0F, 2.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(3.0F, -1.0F, 3.0F, -0.1745F, 0.6109F, -0.2618F));
+
+		return LayerDefinition.create(meshdefinition, 64, 32);
+	}
+	
+	@Override
+	public Iterable<ModelPart> parts() {
+		return ImmutableList.of(tail, body, fins);
+	}
 }

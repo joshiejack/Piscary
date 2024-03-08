@@ -1,16 +1,16 @@
 package uk.joshiejack.piscary.plugin;
 
-import net.minecraft.item.Item;
-import uk.joshiejack.penguinlib.util.PenguinLoader;
-import uk.joshiejack.penguinlib.util.interfaces.IModPlugin;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.ItemLike;
+import uk.joshiejack.penguinlib.util.IModPlugin;
+import uk.joshiejack.penguinlib.util.registry.Plugin;
 import uk.joshiejack.piscary.Piscary;
-import uk.joshiejack.piscary.item.PiscaryItems;
+import uk.joshiejack.piscary.world.item.PiscaryItems;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.function.Supplier;
 
-@PenguinLoader("aquaculture")
+@Plugin("aquaculture")
 public class AquacultureSupport implements IModPlugin {
     @Override
     public void setup() {
@@ -56,7 +56,7 @@ public class AquacultureSupport implements IModPlugin {
         }
     }
 
-    private static void registerFishKGtoPounds(Method method, Object data, Supplier<Item> fish, double min, double max) throws InvocationTargetException, IllegalAccessException {
-        method.invoke(data, fish.get(), min * 2.20462, max * 2.20462);
+    private static void registerFishKGtoPounds(Method method, Object data, ItemLike fish, double min, double max) throws InvocationTargetException, IllegalAccessException {
+        method.invoke(data, fish.asItem(), min * 2.20462, max * 2.20462);
     }
 }

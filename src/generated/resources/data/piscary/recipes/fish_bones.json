@@ -3,6 +3,8 @@
   "ingredient": {
     "item": "piscary:fish_bones"
   },
-  "result": "minecraft:bone_meal",
-  "count": 2
+  "result": {
+    "count": 2,
+    "item": "minecraft:bone_meal"
+  }
 }

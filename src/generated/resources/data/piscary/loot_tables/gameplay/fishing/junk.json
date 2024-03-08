@@ -2,24 +2,26 @@
   "type": "minecraft:fishing",
   "pools": [
     {
-      "rolls": 1.0,
+      "bonus_rolls": 0.0,
       "entries": [
         {
           "type": "minecraft:item",
-          "weight": 17,
-          "name": "piscary:fish_bones"
+          "name": "piscary:fish_bones",
+          "weight": 17
         },
         {
           "type": "minecraft:item",
-          "weight": 14,
-          "name": "piscary:old_boot"
+          "name": "piscary:old_boot",
+          "weight": 14
         },
         {
           "type": "minecraft:item",
-          "weight": 16,
-          "name": "piscary:empty_can"
+          "name": "piscary:empty_can",
+          "weight": 16
         }
-      ]
+      ],
+      "rolls": 1.0
     }
-  ]
+  ],
+  "random_sequence": "piscary:gameplay/fishing/junk"
 }

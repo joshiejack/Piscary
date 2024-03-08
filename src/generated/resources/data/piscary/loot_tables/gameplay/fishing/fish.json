@@ -2,56 +2,58 @@
   "type": "minecraft:fishing",
   "pools": [
     {
-      "rolls": 1.0,
+      "bonus_rolls": 0.0,
       "entries": [
         {
           "type": "minecraft:item",
           "conditions": [
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "OCEAN"
+                "biome_tag": "minecraft:is_ocean"
               }
             },
             {
-              "condition": "minecraft:inverted",
-              "term": {
-                "condition": "piscary:biome_type",
-                "predicate": {
-                  "type": "HOT"
+              "condition": "minecraft:any_of",
+              "terms": [
+                {
+                  "condition": "piscary:biome_tag",
+                  "predicate": {
+                    "biome_tag": "forge:is_hot"
+                  }
                 }
-              }
+              ]
             }
           ],
-          "weight": 32,
-          "name": "piscary:anchovy"
+          "name": "piscary:anchovy",
+          "weight": 32
         },
         {
           "type": "minecraft:item",
           "conditions": [
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "JUNGLE"
+                "biome_tag": "minecraft:is_jungle"
               }
             }
           ],
-          "weight": 3,
-          "name": "piscary:angelfish"
+          "name": "piscary:angelfish",
+          "weight": 3
         },
         {
           "type": "minecraft:item",
           "conditions": [
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "OCEAN"
+                "biome_tag": "minecraft:is_ocean"
               }
             },
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "SNOWY"
+                "biome_tag": "forge:is_snowy"
               }
             }
           ],
@@ -63,40 +65,40 @@
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "minecraft:alternative",
+                "condition": "minecraft:any_of",
                 "terms": [
                   {
-                    "condition": "piscary:biome_type",
+                    "condition": "piscary:biome_tag",
                     "predicate": {
-                      "type": "COLD"
+                      "biome_tag": "forge:is_cold"
                     }
                   },
                   {
-                    "condition": "piscary:biome_type",
+                    "condition": "piscary:biome_tag",
                     "predicate": {
-                      "type": "HOT"
+                      "biome_tag": "forge:is_hot"
                     }
                   }
                 ]
               }
             }
           ],
-          "weight": 12,
-          "name": "piscary:bass"
+          "name": "piscary:bass",
+          "weight": 12
         },
         {
           "type": "minecraft:item",
           "conditions": [
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "OCEAN"
+                "biome_tag": "minecraft:is_ocean"
               }
             },
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "HOT"
+                "biome_tag": "forge:is_hot"
               }
             }
           ],
@@ -108,38 +110,38 @@
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "HOT"
+                  "biome_tag": "forge:is_hot"
                 }
               }
             },
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "OCEAN"
+                  "biome_tag": "minecraft:is_ocean"
                 }
               }
             }
           ],
-          "weight": 3,
-          "name": "piscary:bowfin"
+          "name": "piscary:bowfin",
+          "weight": 3
         },
         {
           "type": "minecraft:item",
           "conditions": [
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "OCEAN"
+                "biome_tag": "minecraft:is_ocean"
               }
             },
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "HOT"
+                "biome_tag": "forge:is_hot"
               }
             }
           ],
@@ -151,37 +153,37 @@
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "HOT"
+                  "biome_tag": "forge:is_hot"
                 }
               }
             },
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "OCEAN"
+                  "biome_tag": "minecraft:is_ocean"
                 }
               }
             }
           ],
-          "weight": 2,
-          "name": "piscary:carp"
+          "name": "piscary:carp",
+          "weight": 2
         },
         {
           "type": "minecraft:item",
           "conditions": [
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "RIVER"
+                "biome_tag": "minecraft:is_river"
               }
             }
           ],
-          "weight": 3,
-          "name": "piscary:catfish"
+          "name": "piscary:catfish",
+          "weight": 3
         },
         {
           "type": "minecraft:item",
@@ -189,51 +191,51 @@
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "HOT"
+                  "biome_tag": "forge:is_hot"
                 }
               }
             },
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "OCEAN"
+                  "biome_tag": "minecraft:is_ocean"
                 }
               }
             }
           ],
-          "weight": 54,
-          "name": "piscary:chub"
+          "name": "piscary:chub",
+          "weight": 54
         },
         {
           "type": "minecraft:item",
           "conditions": [
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "OCEAN"
+                "biome_tag": "minecraft:is_ocean"
               }
             },
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "HOT"
+                "biome_tag": "forge:is_hot"
               }
             }
           ],
-          "weight": 3,
-          "name": "piscary:damselfish"
+          "name": "piscary:damselfish",
+          "weight": 3
         },
         {
           "type": "minecraft:item",
           "conditions": [
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "OCEAN"
+                "biome_tag": "minecraft:is_ocean"
               }
             }
           ],
@@ -245,24 +247,24 @@
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "HOT"
+                  "biome_tag": "forge:is_hot"
                 }
               }
             },
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "WET"
+                  "biome_tag": "forge:is_wet"
                 }
               }
             }
           ],
-          "weight": 37,
-          "name": "piscary:goldfish"
+          "name": "piscary:goldfish",
+          "weight": 37
         },
         {
           "type": "minecraft:item",
@@ -270,18 +272,18 @@
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "HOT"
+                  "biome_tag": "forge:is_hot"
                 }
               }
             },
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "WET"
+                  "biome_tag": "forge:is_wet"
                 }
               }
             }
@@ -294,24 +296,24 @@
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "HOT"
+                  "biome_tag": "forge:is_hot"
                 }
               }
             },
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "COLD"
+                  "biome_tag": "forge:is_cold"
                 }
               }
             }
           ],
-          "weight": 4,
-          "name": "piscary:lamprey"
+          "name": "piscary:lamprey",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
@@ -319,18 +321,18 @@
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "COLD"
+                  "biome_tag": "forge:is_cold"
                 }
               }
             },
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "OCEAN"
+                  "biome_tag": "minecraft:is_ocean"
                 }
               }
             }
@@ -341,17 +343,17 @@
           "type": "minecraft:item",
           "conditions": [
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "OCEAN"
+                "biome_tag": "minecraft:is_ocean"
               }
             },
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "SNOWY"
+                  "biome_tag": "forge:is_snowy"
                 }
               }
             }
@@ -364,42 +366,42 @@
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "OCEAN"
+                  "biome_tag": "minecraft:is_ocean"
                 }
               }
             }
           ],
-          "weight": 102,
-          "name": "piscary:minnow"
+          "name": "piscary:minnow",
+          "weight": 102
         },
         {
           "type": "minecraft:item",
           "conditions": [
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "JUNGLE"
+                "biome_tag": "minecraft:is_jungle"
               }
             }
           ],
-          "weight": 2,
-          "name": "piscary:neon_tetra"
+          "name": "piscary:neon_tetra",
+          "weight": 2
         },
         {
           "type": "minecraft:item",
           "conditions": [
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "SNOWY"
+                "biome_tag": "forge:is_snowy"
               }
             },
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "RIVER"
+                "biome_tag": "minecraft:is_river"
               }
             }
           ],
@@ -409,14 +411,14 @@
           "type": "minecraft:item",
           "conditions": [
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "RIVER"
+                "biome_tag": "minecraft:is_river"
               }
             }
           ],
-          "weight": 21,
-          "name": "piscary:perch"
+          "name": "piscary:perch",
+          "weight": 21
         },
         {
           "type": "minecraft:item",
@@ -424,32 +426,32 @@
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "HOT"
+                  "biome_tag": "forge:is_hot"
                 }
               }
             },
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "OCEAN"
+                  "biome_tag": "minecraft:is_ocean"
                 }
               }
             }
           ],
-          "weight": 2,
-          "name": "piscary:pickerel"
+          "name": "piscary:pickerel",
+          "weight": 2
         },
         {
           "type": "minecraft:item",
           "conditions": [
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "JUNGLE"
+                "biome_tag": "minecraft:is_jungle"
               }
             }
           ],
@@ -461,46 +463,46 @@
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "HOT"
+                  "biome_tag": "forge:is_hot"
                 }
               }
             },
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "OCEAN"
+                  "biome_tag": "minecraft:is_ocean"
                 }
               }
             }
           ],
-          "weight": 4,
-          "name": "piscary:pupfish"
+          "name": "piscary:pupfish",
+          "weight": 4
         },
         {
           "type": "minecraft:item",
           "conditions": [
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "OCEAN"
+                "biome_tag": "minecraft:is_ocean"
               }
             },
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "HOT"
+                  "biome_tag": "forge:is_hot"
                 }
               }
             }
           ],
-          "weight": 30,
-          "name": "piscary:sardine"
+          "name": "piscary:sardine",
+          "weight": 30
         },
         {
           "type": "minecraft:item",
@@ -508,32 +510,32 @@
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "HOT"
+                  "biome_tag": "forge:is_hot"
                 }
               }
             },
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "OCEAN"
+                  "biome_tag": "minecraft:is_ocean"
                 }
               }
             }
           ],
-          "weight": 2,
-          "name": "piscary:siamese_fighting_fish"
+          "name": "piscary:siamese_fighting_fish",
+          "weight": 2
         },
         {
           "type": "minecraft:item",
           "conditions": [
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "OCEAN"
+                "biome_tag": "minecraft:is_ocean"
               }
             }
           ],
@@ -543,15 +545,15 @@
           "type": "minecraft:item",
           "conditions": [
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "OCEAN"
+                "biome_tag": "minecraft:is_ocean"
               }
             },
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "SNOWY"
+                "biome_tag": "forge:is_snowy"
               }
             }
           ],
@@ -563,37 +565,37 @@
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "HOT"
+                  "biome_tag": "forge:is_hot"
                 }
               }
             }
           ],
-          "weight": 14,
-          "name": "piscary:trout"
+          "name": "piscary:trout",
+          "weight": 14
         },
         {
           "type": "minecraft:item",
           "conditions": [
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "OCEAN"
+                "biome_tag": "minecraft:is_ocean"
               }
             },
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "HOT"
+                  "biome_tag": "forge:is_hot"
                 }
               }
             }
           ],
-          "weight": 2,
-          "name": "piscary:tuna"
+          "name": "piscary:tuna",
+          "weight": 2
         },
         {
           "type": "minecraft:item",
@@ -601,45 +603,47 @@
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "HOT"
+                  "biome_tag": "forge:is_hot"
                 }
               }
             },
             {
               "condition": "minecraft:inverted",
               "term": {
-                "condition": "piscary:biome_type",
+                "condition": "piscary:biome_tag",
                 "predicate": {
-                  "type": "COLD"
+                  "biome_tag": "forge:is_cold"
                 }
               }
             }
           ],
-          "weight": 8,
-          "name": "piscary:walleye"
+          "name": "piscary:walleye",
+          "weight": 8
         },
         {
           "type": "minecraft:item",
           "conditions": [
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "HOT"
+                "biome_tag": "forge:is_hot"
               }
             },
             {
-              "condition": "piscary:biome_type",
+              "condition": "piscary:biome_tag",
               "predicate": {
-                "type": "OCEAN"
+                "biome_tag": "minecraft:is_ocean"
               }
             }
           ],
-          "weight": 2,
-          "name": "piscary:whitemargin_stargazer"
+          "name": "piscary:whitemargin_stargazer",
+          "weight": 2
         }
-      ]
+      ],
+      "rolls": 1.0
     }
-  ]
+  ],
+  "random_sequence": "piscary:gameplay/fishing/fish"
 }

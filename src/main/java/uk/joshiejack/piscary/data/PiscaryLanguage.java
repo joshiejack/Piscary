@@ -1,17 +1,17 @@
 package uk.joshiejack.piscary.data;
 
-import net.minecraft.data.DataGenerator;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.data.LanguageProvider;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.common.data.LanguageProvider;
 import uk.joshiejack.piscary.Piscary;
-import uk.joshiejack.piscary.block.PiscaryBlocks;
-import uk.joshiejack.piscary.entity.PiscaryEntities;
-import uk.joshiejack.piscary.item.PiscaryItems;
+import uk.joshiejack.piscary.world.block.PiscaryBlocks;
+import uk.joshiejack.piscary.world.entity.PiscaryEntities;
+import uk.joshiejack.piscary.world.item.PiscaryItems;
 
 public class PiscaryLanguage extends LanguageProvider {
-    public PiscaryLanguage(DataGenerator gen) {
-        super(gen, Piscary.MODID, "en_us");
+    public PiscaryLanguage(PackOutput output) {
+        super(output, Piscary.MODID, "en_us");
     }
 
     @Override
@@ -160,6 +160,6 @@ public class PiscaryLanguage extends LanguageProvider {
     }
 
     public void addItemFromName(String name, String text) {
-        addItem(()-> ForgeRegistries.ITEMS.getValue(new ResourceLocation(Piscary.MODID, name)), text);
+        addItem(()-> BuiltInRegistries.ITEM.get(new ResourceLocation(Piscary.MODID, name)), text);
     }
 }

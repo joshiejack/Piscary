@@ -1,24 +1,25 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "SWS",
-    "SPS",
-    "SLS"
-  ],
+  "category": "misc",
   "key": {
+    "L": {
+      "item": "minecraft:lever"
+    },
+    "P": {
+      "item": "minecraft:piston"
+    },
     "S": {
       "tag": "forge:stone"
     },
     "W": {
       "tag": "forge:rods/wooden"
-    },
-    "P": {
-      "item": "minecraft:piston"
-    },
-    "L": {
-      "item": "minecraft:lever"
     }
   },
+  "pattern": [
+    "SWS",
+    "SPS",
+    "SLS"
+  ],
   "result": {
     "item": "piscary:recycler"
   }
